@@ -9,5 +9,10 @@ Todo::Application.routes.draw do
 
   resources :items, only: [:destroy]
 
+  namespace :api do
+    resources :users
+    resources :lists
+  end
+
   root to: 'users#new'
 end
