@@ -12,7 +12,12 @@ describe Api::ListsController do
     context "with correct user's password" do
 
       it "takes a list name and creates it if it doesn't exist" do
-        params = { id: @user.id, username: @user.username, password: @user.password, list: { name: "New List", permissions: "private", user_id: @user.id } }
+        params = { id: @user.id,
+                   username: @user.username, 
+                   password: @user.password, 
+                   list: { name: "New List", 
+                           permissions: "private", 
+                           user_id: @user.id } }
 
         expect{ post :create, params }
           .to change{ List.count }
@@ -22,7 +27,8 @@ describe Api::ListsController do
 
       it "takes a list name and returns false if it does exist" do
         list = List.create(name: "Honey Do", permissions: "private", user_id: @user.id)
-        params = { id: @user.id, username: @user.username, password: @user.password, list: { name: "Honey Do", permissions: "private", user_id: @user.id } }
+        params = { id: @user.id, 
+                   username: @user.username, password: @user.password, list: { name: "Honey Do", permissions: "private", user_id: @user.id } }
 
         post :create, params
         expect(response.status).to eq 400
@@ -33,7 +39,12 @@ describe Api::ListsController do
     context "without correct user's password" do
       
       it "it errors" do
-        params = { id: @user.id, username: @user.username, password: "wrong", list: { name: "New List", permissions: "private", user_id: @user.id } }
+        params = { id: @user.id,
+                   username: @user.username,
+                   password: "wrong", 
+                   list: { name: "New List",
+                           permissions: "private", 
+                           user_id: @user.id } }
 
         post :create, params
         expect(response.status).to eq 400
@@ -41,6 +52,69 @@ describe Api::ListsController do
       end
 
     end
+  end
+
+  describe "update" do
+
+    before do
+      @user = User.create(username: "Santa", password: "rudolph")
+      @list = List.create(name: "Santa's list", user_id: @user.id)
+    end
+
+    it "updates the list permissions when given a supported permissions type" do
+      params = { id: @user.id,
+                 username: @user.username,
+                 password: @user.password,
+                 list: { id: @list.id,
+                         name: @list.name,
+                         permissions: "open",
+                         user_id: @user.id } }
+
+      patch :update, params
+
+      expect(@list.reload.permissions).to eq "open"
+
+    end
+
+    it "returns an error when given an unsupported permissions type" do
+      params = { id: @user.id,
+                 username: @user.username,
+                 password: @user.password,
+                 list: { id: @list.id,
+                         name: @list.name,
+                         permissions: "wrong",
+                         user_id: @user.id } }
+
+      patch :update, params
+
+      expect(response.status).to eq 400
+    end
+
+    it "allows user to edit a list with permissions set to open" do
+      @list.permissions = "open"
+
+      params = { id: @user.id,
+                 username: @user.username,
+                 password: @user.password,
+                 list: { id: @list.id,
+                         name: "New Name",
+                         user_id: @user.id } }
+
+      patch :update, params
+
+      expect(@list.reload.name).to eq "New Name"
+    end
+
+    it "allows user to view a list with permissions set to viewable" do
+        @list.permissions = "viewable"
+
+        # should this spec go here...?
+      end
+
+    xit "doesn't allow a user to edit a list with permissions set to viewable"
+
+    xit "allows user to view a list with permissions set to open"
+
   end
 
   describe "index" do

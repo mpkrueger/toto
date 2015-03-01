@@ -10,7 +10,11 @@ describe Api::ItemsController do
     context "with correct user's password" do
 
       it "takes an item name and creates it if it doesn't exit" do
-        params = { user: { id: @user.id, username: @user.username, password: @user.password }, item: { list_id: @list.id, description: "Toy truck" } }
+        params = { user: { id: @user.id, 
+                           username: @user.username,
+                           password: @user.password }, 
+                   item: { list_id: @list.id,
+                           description: "Toy truck" } }
 
         expect{ post :create, params }
           .to change{ Item.count }
@@ -21,7 +25,11 @@ describe Api::ItemsController do
     context "without correct user's password" do
 
       it "returns an error" do
-        params = { user: { id: @user.id, username: @user.username, password: "wrong" }, item: { list_id: @list.id, description: "doll" } }
+        params = { user: { id: @user.id,
+                   username: @user.username, 
+                   password: "wrong" }, 
+                   item: { list_id: @list.id,
+                           description: "doll" } }
 
         post :create, params
         expect(response.status).to eq 400
@@ -37,7 +45,10 @@ describe Api::ItemsController do
     context "with correct user's password" do
 
       it "returns all items associated with the list" do
-        params = { user: { id: @user.id, username: @user.username, password: @user.password }, list_id: @list.id }
+        params = { user: { id: @user.id,
+                           username: @user.username, 
+                           password: @user.password }, 
+                   list_id: @list.id }
 
         get :index, params
         JSON.parse(response.body).should ==

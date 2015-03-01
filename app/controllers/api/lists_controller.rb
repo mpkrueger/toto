@@ -19,6 +19,18 @@ class Api::ListsController < ApplicationController
 
   end
 
+  def update
+    @list = List.find(list_params[:id])
+
+
+
+    if @list.update_attributes(list_params) && List.permission_options.include?(@list.permissions)
+      render json: @list
+    else
+      head :bad_request and return
+    end
+  end
+
   def index
     user = User.find(params[:id])
     lists = user.lists
@@ -33,7 +45,7 @@ class Api::ListsController < ApplicationController
   private
 
   def list_params
-    params.require(:list).permit(:name, :permissions, :user_id)
+    params.require(:list).permit(:id, :name, :permissions, :user_id)
   end
 
 end
