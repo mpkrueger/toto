@@ -22,7 +22,11 @@ class Api::ItemsController < ApplicationController
       head :bad_request and return
     end
 
-    render json: items, only: [:list_id, :description]
+    if user.can?(:view, list)
+      render json: items, only: [:list_id, :description]
+    else
+      head :bad_request and return
+    end
   end
 
   private

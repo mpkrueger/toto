@@ -21,10 +21,9 @@ class Api::ListsController < ApplicationController
 
   def update
     @list = List.find(list_params[:id])
+    user = User.find(params[:id])
 
-
-
-    if @list.update_attributes(list_params) && List.permission_options.include?(@list.permissions)
+    if @list.update_attributes(list_params) && List.permission_options.include?(@list.permissions) && user.can?(:update, @list)
       render json: @list
     else
       head :bad_request and return

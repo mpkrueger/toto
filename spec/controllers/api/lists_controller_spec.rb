@@ -59,6 +59,8 @@ describe Api::ListsController do
     before do
       @user = User.create(username: "Santa", password: "rudolph")
       @list = List.create(name: "Santa's list", user_id: @user.id)
+      @viewable_list = List.create(name: "view list", user_id: @user.id, permissions: "viewable")
+      @open_list = List.create(name: "open list", user_id: @user.id, permissions: "open")
     end
 
     it "updates the list permissions when given a supported permissions type" do
@@ -91,29 +93,33 @@ describe Api::ListsController do
     end
 
     it "allows user to edit a list with permissions set to open" do
-      @list.permissions = "open"
 
       params = { id: @user.id,
                  username: @user.username,
                  password: @user.password,
-                 list: { id: @list.id,
+                 list: { id: @open_list.id,
                          name: "New Name",
                          user_id: @user.id } }
 
       patch :update, params
 
-      expect(@list.reload.name).to eq "New Name"
+      expect(@open_list.reload.name).to eq "New Name"
     end
 
-    it "allows user to view a list with permissions set to viewable" do
-        @list.permissions = "viewable"
+    it "doesn't allow a user to edit a list with permissions set to viewable" do
+      viewable_user = User.create(username: "Abe", password: "password")
 
-        # should this spec go here...?
-      end
+      params = { id: viewable_user.id,
+                 username: "Abe",
+                 password: "password",
+                 list: { id: @viewable_list.id,
+                         name: "New Name",
+                         user_id: viewable_user.id } }
 
-    xit "doesn't allow a user to edit a list with permissions set to viewable"
+      patch :update, params
 
-    xit "allows user to view a list with permissions set to open"
+      expect(response.status).to eq 400
+    end
 
   end
 
