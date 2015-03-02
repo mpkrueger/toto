@@ -28,7 +28,11 @@ describe Api::ListsController do
       it "takes a list name and returns false if it does exist" do
         list = List.create(name: "Honey Do", permissions: "private", user_id: @user.id)
         params = { id: @user.id, 
-                   username: @user.username, password: @user.password, list: { name: "Honey Do", permissions: "private", user_id: @user.id } }
+                   username: @user.username, 
+                   password: @user.password, 
+                   list: { name: "Honey Do",
+                           permissions: "private", 
+                           user_id: @user.id } }
 
         post :create, params
         expect(response.status).to eq 400
